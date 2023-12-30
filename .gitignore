@@ -1,0 +1,4 @@
+.codesandbox
+.devcontainer
+**/node_modules
+**/dist
