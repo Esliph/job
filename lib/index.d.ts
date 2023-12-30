@@ -1,2 +1,2 @@
 export * from './dist/index.d'
-export as namespace Esliph_
+export as namespace EsliphJob
