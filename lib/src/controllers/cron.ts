@@ -3,7 +3,7 @@ import { Decorator } from '@esliph/decorator'
 import { ClassConstructor, Metadata } from '@esliph/metadata'
 import { METADATA_KEY_CRON, METADATA_KEY_CRON_OPTIONS } from '../constants'
 
-export type CronOptions = { name: string } & Partial<CronJobParams>
+export type CronOptions = { name: string, alreadyStart?: boolean } & Partial<CronJobParams>
 
 export function Cron(option: Partial<CronOptions>) {
     function handle(target: any, key: string, descriptor: PropertyDescriptor) {

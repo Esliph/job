@@ -32,6 +32,10 @@ export function Bootstrap(Jobs: ClassConstructor[]) {
                 options.timeZone
             )
 
+            if (options.alreadyStart) {
+                job.fireOnTick()
+            }
+
             if (!options.start) {
                 job.start()
             }
