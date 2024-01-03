@@ -4,7 +4,7 @@ import { Decorator } from '@esliph/decorator'
 import { Metadata, ClassConstructor } from '@esliph/metadata'
 import { METADATA_KEY_JOB, METADATA_KEY_JOB_OPTIONS } from '../constants'
 
-export type JobOptions = { name: string, alreadyStart?: boolean } & Partial<CronJobParams>
+export type JobOptions = { name: string, alreadyStart?: boolean, ignore?: boolean } & Partial<CronJobParams>
 
 export function Job(options: JobOptions) {
     function handle(constructor: any) {

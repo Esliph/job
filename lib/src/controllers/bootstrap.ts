@@ -18,36 +18,40 @@ export function Bootstrap(Jobs: ClassConstructor[]) {
 
         const jobOptions = Metadata.Get.Class<JobOptions>(METADATA_KEY_JOB_OPTIONS, jobConstructor)
 
+        if (jobOptions.ignore) { return }
+
         const methodsCron = getMethodsInClassByMetadataKey<CronOptions>(jobConstructor, METADATA_KEY_CRON_OPTIONS)
 
         methodsCron.map(methodCron => {
-            const options = { ...jobOptions, ...methodCron.metadata, name: `${jobOptions.name}.${methodCron.metadata.name}` }
+            const cronOptions = { ...jobOptions, ...methodCron.metadata, name: `${jobOptions.name}.${methodCron.metadata.name}` }
+
+            if (cronOptions.ignore) { return }
 
             const jobInstance = Injection.resolve(jobConstructor)
 
             const job = new CronJob(
-                options.cronTime || '',
+                cronOptions.cronTime || '',
                 async () => {
                     try {
-                        emitter.emit('job/start', { ...options })
+                        emitter.emit('job/start', { ...cronOptions })
 
                         await jobInstance[methodCron.method]()
 
-                        emitter.emit('job/end', { ...options })
+                        emitter.emit('job/end', { ...cronOptions })
                     } catch (err: any) {
-                        emitter.emit('job/error', { ...options, error: err })
+                        emitter.emit('job/error', { ...cronOptions, error: err })
                     }
                 },
                 null,
-                !!options.start,
-                options.timeZone
+                !!cronOptions.start,
+                cronOptions.timeZone
             )
 
-            if (options.alreadyStart) {
+            if (cronOptions.alreadyStart) {
                 job.fireOnTick()
             }
 
-            if (!options.start) {
+            if (!cronOptions.start) {
                 job.start()
             }
         })
