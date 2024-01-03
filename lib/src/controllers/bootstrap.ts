@@ -2,12 +2,15 @@ import { CronJob } from 'cron'
 import { Injection } from '@esliph/injection'
 import { ResultException } from '@esliph/common'
 import { ClassConstructor, Metadata } from '@esliph/metadata'
+import { ObserverEmitter } from '@esliph/observer'
 import { JobOptions, isJob } from './job'
 import { getMethodsInClassByMetadataKey } from '../util'
 import { METADATA_KEY_CRON_OPTIONS, METADATA_KEY_JOB_OPTIONS } from '../constants'
 import { CronOptions, } from './cron'
 
 export function Bootstrap(Jobs: ClassConstructor[]) {
+    const emitter = new ObserverEmitter()
+
     Jobs.map(jobConstructor => {
         if (!isJob(jobConstructor)) {
             throw new ResultException({ title: 'Job', message: `Class "${jobConstructor.name}" must be decorated with @Job` })
@@ -25,7 +28,15 @@ export function Bootstrap(Jobs: ClassConstructor[]) {
             const job = new CronJob(
                 options.cronTime || '',
                 async () => {
-                    return await jobInstance[methodCron.method]()
+                    try {
+                        emitter.emit('job/start', { ...options })
+
+                        await jobInstance[methodCron.method]()
+
+                        emitter.emit('job/end', { ...options })
+                    } catch (err: any) {
+                        emitter.emit('job/error', { ...options, error: err })
+                    }
                 },
                 null,
                 !!options.start,
