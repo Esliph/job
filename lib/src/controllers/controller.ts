@@ -27,9 +27,7 @@ export class JobController {
         }).map(jobConstructor => {
             const { cronJobs, options } = JobController.getCronJobsByConstructor(jobConstructor)
 
-            const jobs = cronJobs.map(methodCron => {
-                return this.createCronJob(jobConstructor, methodCron, options)
-            })
+            const jobs = cronJobs.map(methodCron => this.createCronJob(jobConstructor, methodCron, options)).filter(job => !!job)
 
             return jobs
         }).reduce((acc, value) => [...acc, ...value], []) as JobModel[]
