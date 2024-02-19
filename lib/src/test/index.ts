@@ -2,7 +2,7 @@ import { Bootstrap } from '../controllers/bootstrap'
 import { Cron } from '../controllers/cron'
 import { Job } from '../controllers/job'
 
-@Job({ name: 'my-job', cronTime: '* * * * * *', start: false, alreadyStart: false, ignore: true })
+@Job({ name: 'my-job', cronTime: '*/5 * * * * *', start: false, alreadyStart: false, ignore: false })
 class MyJob {
     constructor() { }
 
@@ -12,4 +12,16 @@ class MyJob {
     }
 }
 
-Bootstrap([MyJob])
+const controller = Bootstrap({
+    jobs: [MyJob]
+})
+
+const job = controller.getJobByName('my-job.hello')!
+
+setTimeout(() => {
+    job.stop()
+}, 1000 * 3)
+
+setTimeout(() => {
+    job.start()
+}, 1000 * 6)
